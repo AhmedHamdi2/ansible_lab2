@@ -1,0 +1,115 @@
+# -------------------TASK-3-------------------------------------
+# - name: Update and Install '{{ package_name }}' & Curl
+#   hosts: web_servers
+#   vars:
+#       package_name: nginx
+#       package_version: latest
+#   tasks:
+#   - name: my task with loops
+#     apt:
+#       name: "{{ item }}"
+#       state: latest
+#     loop:
+#       - nginx
+#       - mariadb-server
+#       - curl
+
+# -------------------TASK-1 & 2-------------------------------------
+    # - name: apt Update
+    #   tags: update
+    #   ansible.builtin.apt:
+    #     update_cache: yes 
+
+
+    # - name: Install '{{ package_version }}' version of '{{ package_name }}'
+    #   tags: install
+    #   ansible.builtin.apt:
+    #     name: "{{ package_name }}"
+    #     state: "{{ package_version }}" 
+    
+    # - name: install curl
+    #   tags: always
+    #   ansible.builtin.apt:
+    #     name: curl
+    #     state: latest
+
+# ----------------------TASK-3(A)----------------------------------
+
+# - name: Mu PLay with loops
+#   hosts: web_servers
+#   tasks:
+#   - name: my task with loops
+#     ansible.builtin.apt:
+#       name: "{{ item }}"
+#       state: latest
+#     loop:
+#       - nginx
+#       - ssh
+#       - curl
+
+
+# ------------------------TASK-3(B)--------------------------------   
+
+
+# - name: my play with loops
+#   hosts: web_servers
+#   tasks:
+#     - name: my task with loops
+#       ansible.builtin.apt:
+#         name: "{{ item.package_name }}"
+#         state: "{{ item.package_state }}"
+#       loop:
+#         - { package_name: "nginx", package_state: "present" }
+#         - { package_name: "ssh", package_state: "latest" }
+#         - { package_name: "curl", package_state: "absent" }
+
+
+# -------------------TASK-4-------------------------------------
+
+
+- name: Install nginx or apache2 depending on distribution
+  hosts: web_servers
+  vars:
+    restart_nginx: true
+  
+  tasks:
+    - name: Install nginx on Ubuntu
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: yes
+      when: ansible_facts['distribution'] == "Ubuntu"
+
+    - name: Install apache2 on CentOS
+      ansible.builtin.yum:
+        name: httpd
+        state: present
+      when: ansible_facts['distribution'] == "CentOS"
+
+    - name: Restart nginx service if distribution is Ubuntu and restart_nginx is true
+      service:
+        name: nginx
+        state: restarted
+      when:
+        - ansible_facts['distribution'] == "Ubuntu"
+        - restart_nginx | bool
+
+
+
+
+# -------------------TASK-5-------------------------------------
+
+# - name: my play with register
+#   hosts: web_servers
+#   tasks:
+#   - name: my task1 with register
+#     command: cat /etc/os-release
+#     register: my_result
+#   - name: my task2 with register
+#     debug:
+#       var: my_result
+#     when: my_result.failed == false or my_result.changed == true
+
+  
+
+
